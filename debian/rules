@@ -1,6 +1,6 @@
 #! /usr/bin/make -f
 #  rules -- to create Debian packages
-#  Copyright (C) 2007, 2009  EPSON AVASYS CORPORATION
+#  Copyright (C) 2007, 2009, 2016  SEIKO EPSON CORPORATION
 #
 #  This file is part of the "Image Scan!" build infra-structure.
 #
@@ -52,9 +52,16 @@ DEB_DH_MAKESHLIBS_ARGS_ALL = --exclude=libsane
 
 #  Add iscan as a system-wide GIMP plug-in.
 
-DEB_DH_LINK_ARGS = \
-	usr/bin/iscan `gimptool-2.0 --gimpplugindir | sed 's,^/,,'`/plug-ins/iscan
+MULTIARCH ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_CPU)
+ifeq ($(strip ${MULTIARCH}), x86_64)
+	DEB_BUILD_MULTIARCH ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_CPU)
+else
+	DEB_BUILD_MULTIARCH ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH_CPU)
+endif
 
+DEB_DH_LINK_ARGS = \
+	usr/bin/iscan `gimptool-2.0 --gimpplugindir | sed 's,^/,,'`/plug-ins/iscan \
+	usr/lib/sane/libsane-epkowa.so.1.0.15 usr/lib/${DEB_BUILD_MULTIARCH}-linux-gnu/sane/libsane-epkowa.so.1
 
 #  Tweak what goes into the binary package.  We don't modify dll.conf
 #  directly (but use the Debian dll.d extension).
@@ -90,18 +97,6 @@ cleanbuilddir/$(DEB_SOURCE_PACKAGE)::
 	-rm $(deb_subst_files)
 
 pre-build::
-	if ! grep "~usb0\.1.*)" $(CURDIR)/debian/changelog; then \
-	    m_arch=`dpkg-architecture -qDEB_BUILD_MULTIARCH` \
-	    ltdl_v7=`find /usr/lib /usr/lib64 /lib/$$m_arch /usr/lib/$$m_arch -maxdepth 2 -name "libltdl.so.7*" 2> /dev/null`; \
-	    usb_10=`find /usr/lib /usr/lib64 /lib/$$m_arch /usr/lib/$$m_arch -maxdepth 2 -name "libusb-1.0.so.*" 2> /dev/null`; \
-	    if ! test -n "$$usb_10"; then \
-	        if test -n "$$ltdl_v7"; then \
-	            sed -i -e "1s|)|~usb0.1.ltdl7)|" $(CURDIR)/debian/changelog; \
-	        else \
-	            sed -i -e "1s|)|~usb0.1.ltdl3)|" $(CURDIR)/debian/changelog; \
-	        fi \
-	    fi \
-	fi
 	for f in $(deb_subst_files); do \
 	    sed -e 's|[@]DEB_SOURCE_PACKAGE[@]|$(DEB_SOURCE_PACKAGE)|g' \
 	        -e 's|[@]DEB_VERSION[@]|$(DEB_VERSION)|g' \

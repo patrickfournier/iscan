@@ -2,7 +2,7 @@
 			Image Scan! for Linux
 			=====================
 
-Copyright (C) 2010, 2012  SEIKO EPSON CORPORATION
+Copyright (C) 2019 SEIKO EPSON Corporation
 
 
   ABSTRACT
@@ -25,15 +25,15 @@ Copyright (C) 2010, 2012  SEIKO EPSON CORPORATION
     The graphical user interface, iscan, carries an exception to allow
     linking with the non-free 'esmod' library.  Copies of that library
     are included in the 'non-free/' directory and covered by the terms
-    of the AVASYS Public License.
+    of the EPSON END USER SOFTWARE LICENSE.
     The device driver (backend) carries a similar exception to provide
     for the use of plugins.  Such plugins are packaged and distributed
     independently from this software and are only required for certain
     models and/or hardware options.
 
     A verbatim copy of the GNU General Public License can be found in
-    the file 'COPYING'.  A verbatim copy of the AVASYS Public License
-    can be found in the file 'non-free/AVASYSPL.en.txt'.
+    the file 'COPYING'.  A verbatim copy of the EPSON End User Software
+    License can be found in the file 'non-free/COPYING.EPSON.en.txt'.
 
 
 NEWS
@@ -194,6 +194,3 @@ OPERATION
         devices that are known to work with it.
      3. For network scanning via a server connected device please see
         the user manual.
-
-
- -- AVASYS CORPORATION <http://avasys.jp/>

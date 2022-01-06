@@ -2,7 +2,7 @@
                         Image Scan! for Linux
                         =====================
 
-Copyright (C) 2010, 2012  SEIKO EPSON CORPORATION
+Copyright (C) 2019 SEIKO EPSON Corporation
 
 
   概要
@@ -24,15 +24,15 @@ Copyright (C) 2010, 2012  SEIKO EPSON CORPORATION
     において、提供を致します。
     スキャンユーティリティ（iscan）は、非自由なモジュールの'esmod'と
     リンク致します。'esmod'モジュールは、'non-free/'ディレクトリに
-    コピーを置き、AVASYS Public License の条件により、バイナリのみ
+    コピーを置き、EPSON END USER SOFTWARE LICENSE の条件により、バイナリのみ
     を提供を致します。
     デバイスドライバ（backend）は非自由なモジュールとリンク致します。
     非自由なモジュールは、特定の製品において必要となり、本パッケージ
     とは別に、独立したパッケージにより配布しております。
 
     GNU General Public Licenseの使用許諾の内容は、'COPYING'ファイルで、
-    確認することが可能です。AVASYS Public Licenseの使用許諾の内容は、
-    'non-free/AVASYSPL.ja.txt'ファイルで確認することが可能です。
+    確認することが可能です。EPSON END USER SOFTWARE LICENSEの使用許諾の内容は、
+    'non-free/COPYING.EPSON.ja.txt'ファイルで確認することが可能です。
 
 
 変更履歴
@@ -202,5 +202,3 @@ Copyright (C) 2010, 2012  SEIKO EPSON CORPORATION
      3. サーバーに接続されたスキャナから画像を取り込みたい場合は、
      	ユーザーマニュアルをご確認ください。
 
-
- -- AVASYS CORPORATION <http://avasys.jp/>

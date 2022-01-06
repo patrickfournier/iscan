@@ -1,5 +1,5 @@
 /*  command.h -- assorted ESC/I protocol commands
- *  Copyright (C) 2008--2009  SEIKO EPSON CORPORATION
+ *  Copyright (C) 2008--2014  SEIKO EPSON CORPORATION
  *
  *  License: GPLv2+|iscan
  *  Authors: AVASYS CORPORATION
@@ -176,6 +176,14 @@
 #define FSI_CAP_AFF             0x04    /* auto form feed */
 #define FSI_CAP_ESST            0x02    /* ??? */
 #define FSI_CAP_PED             0x01    /* paper end detection support */
+
+#define FSI_CAP_DPOS_MASK       0x03    /* the document position of the ADF */
+
+/* DPOS status */
+#define FSI_CAP_DPOS_UNKN       0x00    /* no information */
+#define FSI_CAP_DPOS_LEFT       0x01    /* left side position */
+#define FSI_CAP_DPOS_CNTR       0x02    /* center position */
+#define FSI_CAP_DPOS_RIGT       0x03    /* right position */
 
 /* Maintenance requests.
  */

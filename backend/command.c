@@ -1,5 +1,5 @@
 /*  command.c -- assorted ESC/I protocol commands
- *  Copyright (C) 2008--2009  SEIKO EPSON CORPORATION
+ *  Copyright (C) 2008--2014  SEIKO EPSON CORPORATION
  *
  *  License: GPLv2+|iscan
  *  Authors: AVASYS CORPORATION
@@ -402,6 +402,7 @@ cmd_request_extended_identity (device *hw)
 
   hw->fsi_cap_1 = buf[44];
   hw->fsi_cap_2 = buf[45];
+  hw->fsi_cap_3 = buf[76];
   {                             /* transfer corresponding flags */
     byte mask = (EXT_STATUS_NO_FBF | EXT_STATUS_ADFT | EXT_STATUS_ADFS
                  | EXT_STATUS_ADFO | EXT_STATUS_LID | EXT_STATUS_PB);

@@ -1,7 +1,6 @@
 ##  Makefile.am -- an automake template for a Makefile.in file
 ##  Copyright (C) 2004, 2005  Olaf Meeuwissen
-##  Copyright (C) 2007, 2008  EPSON AVASYS CORPORATION
-##  Copyright (C) 2009  AVASYS CORPORATION
+##  Copyright (C) 2019 SEIKO EPSON Corporation
 ##
 ##  This file is part of the "Image Scan!" build infra-structure.
 ##

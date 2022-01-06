@@ -1,13 +1,13 @@
 /*  test-pcx.cc -- utility functions for testing purposes
- *  Copyright (C) 2011  SEIKO EPSON CORPORATION
+ *  Copyright (C) 2019  SEIKO EPSON Corporation
  *
- *  License: AVASYS PUBLIC LICENSE
- *  Author : AVASYS CORPORATION
+ *  License: EPSON END USER SOFTWARE LICENSE
+ *  Author : SEIKO EPSON Corporation
  *
  *  This file is part of Image Scan! for Linux.
- *  It is distributed under the terms of the AVASYS PUBLIC LICENSE.
+ *  It is distributed under the terms of the EPSON END USER SOFTWARE LICENSE.
  *
- *  You should have received a verbatim copy of the AVASYS PUBLIC
+ *  You should have received a verbatim copy of the EPSON END USER SOFTWARE
  *  LICENSE along with the software.
  */
 

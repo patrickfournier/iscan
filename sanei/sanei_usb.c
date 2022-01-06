@@ -1513,33 +1513,35 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	       "configuration (%d), choosing first config (%d)\n",
 	       dev->descriptor.bNumConfigurations,
 	       dev->config[0].bConfigurationValue);
-	}
-      result = usb_set_configuration (devices[devcount].libusb_handle,
-				      dev->config[0].bConfigurationValue);
-      if (result < 0)
-	{
-	  SANE_Status status = SANE_STATUS_INVAL;
 
-	  DBG (1, "sanei_usb_open: libusb complained: %s\n", usb_strerror ());
-	  if (errno == EPERM)
+	  result = usb_set_configuration (devices[devcount].libusb_handle,
+					  dev->config[0].bConfigurationValue);
+	  if (result < 0)
 	    {
-	      DBG (1, "Make sure you run as root or set appropriate "
-		   "permissions\n");
-	      status = SANE_STATUS_ACCESS_DENIED;
-	    }
-	  else if (errno == EBUSY)
-	    {
-	      DBG (3, "Maybe the kernel scanner driver or usblp claims the "
-		   "interface? Ignoring this error...\n");
-	      status = SANE_STATUS_GOOD;
-	    }
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      usb_close (devices[devcount].libusb_handle);
-	      return status;
+	      SANE_Status status = SANE_STATUS_INVAL;
+
+	      DBG (1, "sanei_usb_open: libusb complained: %s\n",
+		   usb_strerror ());
+	      if (errno == EPERM)
+		{
+		  DBG (1, "Make sure you run as root or set appropriate "
+		       "permissions\n");
+		  status = SANE_STATUS_ACCESS_DENIED;
+		}
+	      else if (errno == EBUSY)
+		{
+		  DBG (3, "Maybe the kernel scanner driver or usblp claims "
+		       "the interface? Ignoring this error...\n");
+		  status = SANE_STATUS_GOOD;
+		}
+	      if (status != SANE_STATUS_GOOD)
+		{
+		  usb_close (devices[devcount].libusb_handle);
+		  return status;
+		}
 	    }
 	}
-
+      
       /* Claim the interface */
       result = usb_claim_interface (devices[devcount].libusb_handle,
 				    devices[devcount].interface_nr);
@@ -1577,13 +1579,13 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 		  DBG (5, "sanei_usb_open:     interface nr: %d\n", i);
 		  DBG (5, "sanei_usb_open:   alt_setting nr: %d\n", a);
 
-                  /* Start by interfaces found in sanei_usb_init */
-                  if (c == 0 && i != devices[devcount].interface_nr)
-                    {
-                      DBG (5, "sanei_usb_open: interface %d not detected as "
-                        "a scanner by sanei_usb_init, ignoring.\n", i);
-                      continue;
-                     }
+		  /* Start by interfaces found in sanei_usb_init */
+		  if (c == 0 && i != devices[devcount].interface_nr)
+		    {
+		      DBG (5, "sanei_usb_open: interface %d not detected as "
+			"a scanner by sanei_usb_init, ignoring.\n", i);
+		      continue;
+		     }
 
 		  interface = &dev->config[c].interface[i].altsetting[a];
 
@@ -1815,37 +1817,40 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	       "configuration (%d), choosing first config (%d)\n",
 	       desc.bNumConfigurations,
 	       config0->bConfigurationValue);
-	}
-      result = libusb_set_configuration (devices[devcount].lu_handle,
-					 config0->bConfigurationValue);
 
+	  result = 0;
+	  if (config != config0->bConfigurationValue)
+	    result = libusb_set_configuration (devices[devcount].lu_handle,
+					       config0->bConfigurationValue);
+
+	  if (result < 0)
+	    {
+	      SANE_Status status = SANE_STATUS_INVAL;
+
+	      DBG (1, "sanei_usb_open: libusb complained: %s\n",
+		   sanei_libusb_strerror (result));
+	      if (result == LIBUSB_ERROR_ACCESS)
+		{
+		  DBG (1, "Make sure you run as root or set appropriate "
+		       "permissions\n");
+		  status = SANE_STATUS_ACCESS_DENIED;
+		}
+	      else if (result == LIBUSB_ERROR_BUSY)
+		{
+		  DBG (3, "Maybe the kernel scanner driver or usblp claims "
+		       "the interface? Ignoring this error...\n");
+		  status = SANE_STATUS_GOOD;
+		}
+
+	      if (status != SANE_STATUS_GOOD)
+		{
+		  libusb_close (devices[devcount].lu_handle);
+		  libusb_free_config_descriptor (config0);
+		  return status;
+		}
+	    }
+	}
       libusb_free_config_descriptor (config0);
-
-      if (result < 0)
-	{
-	  SANE_Status status = SANE_STATUS_INVAL;
-
-	  DBG (1, "sanei_usb_open: libusb complained: %s\n",
-	       sanei_libusb_strerror (result));
-	  if (result == LIBUSB_ERROR_ACCESS)
-	    {
-	      DBG (1, "Make sure you run as root or set appropriate "
-		   "permissions\n");
-	      status = SANE_STATUS_ACCESS_DENIED;
-	    }
-	  else if (result == LIBUSB_ERROR_BUSY)
-	    {
-	      DBG (3, "Maybe the kernel scanner driver or usblp claims the "
-		   "interface? Ignoring this error...\n");
-	      status = SANE_STATUS_GOOD;
-	    }
-
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      libusb_close (devices[devcount].lu_handle);
-	      return status;
-	    }
-	}
 
       /* Claim the interface */
       result = libusb_claim_interface (devices[devcount].lu_handle,
@@ -2269,8 +2274,7 @@ sanei_usb_close (SANE_Int dn)
   else
 #ifdef HAVE_LIBUSB
     {
-#ifndef __macos_x__             /* assuming this is what is used on
-                                   Mac OS X, haven't checked */
+#if 0
       /* Should only be done in case of a stall */
       usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
       usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_out_ep);
@@ -2295,8 +2299,7 @@ sanei_usb_close (SANE_Int dn)
     }
 #elif defined(HAVE_LIBUSB_1_0)
     {
-#ifndef __macos_x__             /* assuming this is what is used on
-                                   Mac OS X, haven't checked */
+#if 0
       /* Should only be done in case of a stall */
       libusb_clear_halt (devices[dn].lu_handle, devices[dn].bulk_in_ep);
       libusb_clear_halt (devices[dn].lu_handle, devices[dn].bulk_out_ep);

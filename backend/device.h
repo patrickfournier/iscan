@@ -1,5 +1,5 @@
 /*  device.h -- physical device representation
- *  Copyright (C) 2008, 2009  SEIKO EPSON CORPORATION
+ *  Copyright (C) 2008, 2009, 2014  SEIKO EPSON CORPORATION
  *
  *  License: GPLv2+|iscan
  *  Authors: AVASYS CORPORATION
@@ -148,6 +148,7 @@ struct device
   SANE_Byte fsf_status;
   SANE_Byte fsi_cap_1;
   SANE_Byte fsi_cap_2;
+  SANE_Byte fsi_cap_3;
 
   const extension *src;         /*!< current document source */
   fbf_extension   *fbf;         /*!< \c NULL if not available */

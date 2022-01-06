@@ -1,5 +1,5 @@
 //  pngstream.cc -- image streams producing PNG files
-//  Copyright (C) 2008, 2009  SEIKO EPSON CORPORATION
+//  Copyright (C) 2008, 2009, 2016  SEIKO EPSON CORPORATION
 //
 //  This file is part of the 'iscan' program.
 //
@@ -118,22 +118,12 @@ namespace iscan
         // to a "file not found" error when calling dlopen.  We just
         // dlopen the libz library explicitly to work around this.
         basic_imgstream::dlopen ("libz");
-        basic_imgstream::dlopen ("libpng", validate);
+        basic_imgstream::dlopen ("libpng12", validate);
       }
     catch (std::runtime_error& e)
       {
-        try
-          {
-            // At least Debian has released packages with a different
-            // name for the library.  Try this as a fallback to avoid
-            // the need for a development package that has libpng.so.
-            basic_imgstream::dlopen ("libpng12", validate);
-          }
-        catch (std::runtime_error& e)
-          {
-            lib->message = e.what ();
-            return lib->is_usable;
-          }
+        lib->message = e.what ();
+        return lib->is_usable;
       }
 #endif /* HAVE_PNG_H */
 
