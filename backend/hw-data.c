@@ -1,5 +1,5 @@
 /*  hw-data.c -- selected hardware specific data
- *  Copyright (C) 2004--2009  SEIKO EPSON CORPORATION
+ *  Copyright (C) 2004--2016  SEIKO EPSON CORPORATION
  *
  *  License: GPLv2+|iscan
  *  Authors: AVASYS CORPORATION
@@ -168,6 +168,7 @@ adf_needs_manual_centering (const device *hw)
     "LP-M5000",
     "LP-M5300",
     "LP-M8040",
+    "LP-M8170",
     "ES-H300",
     "CX9400Fax",
     "PID 087C",
@@ -247,6 +248,7 @@ large_res_kills_adf_scan (const device *hw)
     "LP-M5000",
     "LP-M5300",
     "LP-M8040",
+    "LP-M8170",
     NULL,
   };
 

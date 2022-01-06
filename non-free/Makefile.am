@@ -1,5 +1,5 @@
 ##  Makefile.am -- an automake template for a Makefile.in file
-##  Copyright (C) 2004--2006  Olaf Meeuwissen
+##  Copyright (C) 2019  SEIKO EPSON Corporation
 ##
 ##  This file is part of the "Image Scan!" build infra-structure.
 ##
@@ -27,8 +27,8 @@ NON_FREE_FRONTEND_SOLIBS = \
 	libesmod-i386.c2.so \
 	libesmod-x86_64.c2.so
 NON_FREE_LICENSES = \
-	AVASYSPL.en.txt \
-	AVASYSPL.ja.txt
+	COPYING.EPSON.en.txt \
+	COPYING.EPSON.ja.txt
 
 EXTRA_DIST = \
 	checksums.md5 \

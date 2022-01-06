@@ -1,6 +1,6 @@
 #  iscan.spec.in -- an rpm spec file template
 #  Copyright (C) 2004--2006  Olaf Meeuwissen
-#  Copyright (C) 2009  SEIKO EPSON CORPORATION
+#  Copyright (C) 2019 SEIKO EPSON Corporation
 #
 #  This file is part of the "Image Scan!" build infra-structure.
 #
@@ -28,40 +28,23 @@
 %define _binary_payload                 w9.gzdio
 %define _source_payload                 w9.gzdio
 
-#  Readability macro to help determine libltdl's version at RPM build time.
-%define ltdl_v7	`find /usr/lib /usr/lib64 -maxdepth 2 -name "libltdl.so.7*"   2> /dev/null`
-%define usb_10	`find /usr/lib /usr/lib64 -maxdepth 2 -name "libusb-1.0.so.*" 2> /dev/null`
-
 #  Some handy macro definitions.
 #
 %define pkg	@PACKAGE_TARNAME@
 %define ver	@PACKAGE_VERSION@
 %define rel	@scm_src_release@
-%define subrel	%(if test -n "%{usb_10}"; then \
-                    echo '.usb1.0'; \
-                  else \
-                    if test -n "%{ltdl_v7}"; then \
-                       echo '.usb0.1.ltdl7'; \
-                    else \
-                       echo '.usb0.1.ltdl3'; \
-                    fi; \
-                  fi)
 %define msg	%{_tmppath}/%{pkg}-%{ver}-%{rel}.msg
 
 %define supported_archs		i386 i486 i586 i686 x86_64 amd64
 %define gimp_api_versions	1.2 2.0
 
-%if "%{_vendor}" == "Mandriva"
-%define subrel avasys.%{distsuffix}%{mandriva_release}
-%endif
-
 # 	general package information
 
 Name:		%{pkg}
 Version:	%{ver}
-Release:	%{rel}%{subrel}
+Release:	%{rel}
 Source:		%{pkg}_%{ver}-%{rel}.tar.gz
-License:	GPL (with exception clauses) and AVASYSPL
+License:	GPL (with exception clauses) and EPSON End User Software License
 
 Vendor:		@scm_src_vendor@
 URL:		@scm_src_website@
@@ -72,7 +55,7 @@ Requires:	iscan-data
 Conflicts:	iscan-network-nt < 1.1, iscan-plugin-cx4400 < 2.1, iscan-plugin-gt-7200 < 2.1, iscan-plugin-gt-7300 < 2.1, iscan-plugin-gt-9400 < 2.1, iscan-plugin-gt-f500 < 2.1, iscan-plugin-gt-f520 < 2.1, iscan-plugin-gt-f600 < 2.1, iscan-plugin-gt-f670 < 2.1, iscan-plugin-gt-f700 < 2.1, iscan-plugin-gt-s600 < 2.1, iscan-plugin-gt-x750 < 2.1
 
 BuildRoot:	%{_tmppath}/%{pkg}-%{ver}-%{rel}-root
-BuildRequires:	libusb >= 0.1.6, libxml2-devel
+BuildRequires:	libusb1-devel, libxml2-devel
 
 %ifarch %{supported_archs}
 BuildRequires:	gtk2-devel, libpng-devel, libjpeg-devel, libtiff-devel
@@ -294,12 +277,12 @@ fi
 
 %doc NEWS    README    AUTHORS
 %doc COPYING
-%doc non-free/AVASYSPL.en.txt
+%doc non-free/COPYING.EPSON.en.txt
 #  This should really go into ${RPM_DOC_DIR}/examples/.
 %doc doc/xinetd.sane
 
 %doc NEWS.ja README.ja
-%doc non-free/AVASYSPL.ja.txt
+%doc non-free/COPYING.EPSON.ja.txt
 
 %config(noreplace)	%{_sysconfdir}/sane.d/epkowa.conf
 
@@ -318,64 +301,7 @@ fi
 # 	significant packaging changes
 
 %changelog
-* Mon Dec 15 2008  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>
-  - redid the udev rules and FDI file creation using make-policy-file
-    script
-  - dropped hotplug support, we now assume udev and/or hal are present
-
-* Tue May 23 2006  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>
-  - create udev rules from hotplug usermap using custom utility
-
-* Tue Jan 24 2006  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>
-  - turned the dependency on sane-backend into a PreReq: because our
-    %post mucks with its dll.conf
-  - disable the backend when uninstalling
-  - use sed's -i option to modify dll.conf in place
-
-* Sat Jan 21 2006  Olaf Meeuwissen <iscan@member.fsf.org>
-  - removed packaging of interpreter plugins
-
-* Fri Sep 30 2005  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>
-  - package the backend interpreter plugins in their own RPMs
-  - added support for build on architectures other than IA32
-  - beefed up the BuildRequires:
-
-* Thu Jun 16 2005  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>
-  - use gimptool to find the plugin directory (note that some distro's
-    prefer to provide gimptool-2.0 only!)
-
-* Thu May 19 2005  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>
-  - fixed broken dependency specification
-  - use release number defined in configure.ac
-
-* Mon Apr 25 2005  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>
-  - modified %doc entries to handle license file name changes
-  - updated URL: to reflect corporate name change
-
-* Sun Apr 10 2005  Olaf Meeuwissen <iscan@member.fsf.org>
-  - integrated iscan-1.14.0 changes to add hotplug support
-
-* Fri Dec 24 2004  Olaf Meeuwissen <iscan@member.fsf.org>
-  - bumped libusb versioned dependency to use the correct version
-
-* Fri Dec  3 2004  Olaf Meeuwissen <olaf@epkowa.co.jp>
-  - fixed creation of GIMP plug-in symlinks
-
-* Mon Nov  1 2004  Olaf Meeuwissen <olaf@epkowa.co.jp>
-  - fixed libesmod.so* path (it's not in %{_libdir}/%{pkg} yet)
-  - added Japanese documentation
-  - doubled %s in the spec file parts to un-confuse rpmbuild
-  - fixed typo in config file installation command
-  - fixed generation of message catalog list
-
-* Fri Oct 29 2004  Olaf Meeuwissen <iscan@member.fsf.org>
-  - adapt to Fascist build policy
-  - no longer install libsane-epkowa.so as this seems to have become
-    the vogue for non-development packages
-  - install libsane-epkowa.la so that the dll backend can still find
-    the epkowa backend
-
-* Tue Oct 19 2004  Olaf Meeuwissen <iscan@member.fsf.org>
-  - initial spec file
+* Tue Jul 30 2019 Kenichi Shimoura <linux-printer@epson.jp>
+- new upstream
 
 # 	end of file

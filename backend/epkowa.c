@@ -19,7 +19,7 @@
    Copyright (C) 1999 Norihiko Sawa <sawa@yb3.so-net.ne.jp>
    Copyright (C) 2000 Mike Porter <mike@udel.edu> (mjp)
    Copyright (C) 1999-2004 Karl Heinz Kremer <khk@khk.net>
-   Copyright (C) 2001-2013 SEIKO EPSON CORPORATION
+   Copyright (C) 2001-2016 SEIKO EPSON CORPORATION
 
    This file is part of the EPKOWA SANE backend.
 
@@ -655,7 +655,7 @@ static SANE_Status handle_source (Epson_Scanner * s,
                                   char *value);
 
 static void adf_handle_out_of_paper (Epson_Scanner * s);
-static void adf_handle_manual_centering (Epson_Scanner *s, SANE_Bool finalize);
+static void adf_handle_adjust_alignment (Epson_Scanner *s, SANE_Bool finalize);
 
 static void handle_autocrop (Epson_Scanner *s, SANE_Bool *value, SANE_Bool *reload);
 static void handle_deskew (Epson_Scanner *s, SANE_Bool *value, SANE_Bool *reload);
@@ -1243,16 +1243,11 @@ create_epson_device (device **devp, channel* ch)
       return SANE_STATUS_IO_ERROR;
     }
 
-  /* FIXME We should use this for all devices after the LP-M8040,
-   *       maybe even for all devices that are using_fs.  For the
-   *       truly bold, just use this for any supported device. 
-   */
-  if (0 == strcmp_c ("LP-M8040", dev->fw_name))
-    {
-      size_t protocol_max = (dev->using_fs ? UINT32_MAX : UINT16_MAX);
+  {
+    size_t protocol_max = (dev->using_fs ? UINT32_MAX : UINT16_MAX);
 
-      ch->set_max_request_size (ch, min (protocol_max, 512 * 1024));
-    }
+    ch->set_max_request_size (ch, min (protocol_max, 512 * 1024));
+  }
 
   initialize (dev);
 
@@ -3917,7 +3912,7 @@ setvalue (Epson_Scanner *s, SANE_Int option, void *value, SANE_Int * info)
           s->val[OPT_BR_X].w = SANE_FIX (media_list[i].width);
           s->val[OPT_BR_Y].w = SANE_FIX (media_list[i].height);
 
-          adf_handle_manual_centering (s, SANE_FALSE);
+          adf_handle_adjust_alignment (s, SANE_FALSE);
         }
 
       reload = SANE_TRUE;
@@ -4755,7 +4750,7 @@ device_sheet_setup (Epson_Scanner *s)
     s->val[OPT_BR_Y].w = SANE_FIX (s->hw->src->doc_y);
   }
 
-  adf_handle_manual_centering (s, SANE_TRUE);
+  adf_handle_adjust_alignment (s, SANE_TRUE);
 
   status = set_scan_parameters (s, &x_dpi, &y_dpi);
   if (SANE_STATUS_GOOD != status)
@@ -5316,14 +5311,35 @@ adf_handle_out_of_paper (Epson_Scanner * s)
     log_info ("ADF: scanning reverse side");
 }
 
+static SANE_Bool
+adf_needs_realignment (const device *hw)
+{
+  SANE_Byte dpos;
+
+  require (using (hw, adf));
+
+  dpos = hw->fsi_cap_3 & FSI_CAP_DPOS_MASK;
+
+  return (adf_needs_manual_centering (hw)
+          || FSI_CAP_DPOS_CNTR == dpos
+          || FSI_CAP_DPOS_RIGT == dpos);
+}
+
 static void
-adf_handle_manual_centering (Epson_Scanner *s, SANE_Bool finalize)
+adf_handle_adjust_alignment (Epson_Scanner *s, SANE_Bool finalize)
 {
   scan_area_t adf_scan_area;
   double shift = 0.0;
+  double sides = 2;             /* distribute shift on both sides
+                                   --> we center by default */
+  log_call();
 
   if (!using (s->hw, adf)) return;
-  if (!adf_needs_manual_centering (s->hw)) return;
+  if (!adf_needs_realignment (s->hw)) return;
+
+  log_info ("before alignment: tl-x = %.2f, br-x = %.2f",
+            SANE_UNFIX (s->val[OPT_TL_X].w),
+            SANE_UNFIX (s->val[OPT_BR_X].w));
 
   adf_scan_area =
     get_model_info_max_scan_area (s->hw, s->val[OPT_ADF_MODE].w);
@@ -5335,6 +5351,11 @@ adf_handle_manual_centering (Epson_Scanner *s, SANE_Bool finalize)
     adf_scan_area.height = s->hw->src->y_range.max;
   }
 
+  if (FSI_CAP_DPOS_RIGT == s->hw->fsi_cap_3 & FSI_CAP_DPOS_MASK)
+  {
+    sides = 1;                  /* put whole shift on one side */
+  }
+
   /* scan area setting or no marquee */
   if (!finalize ||
       (adf_scan_area.width     == (s->val[OPT_BR_X].w - s->val[OPT_TL_X].w)
@@ -5342,8 +5363,8 @@ adf_handle_manual_centering (Epson_Scanner *s, SANE_Bool finalize)
   {
     double scan_width = (SANE_UNFIX (s->val[OPT_BR_X].w)
                          - SANE_UNFIX (s->val[OPT_TL_X].w));
-
-    shift = ((SANE_UNFIX (s->hw->src->x_range.max) - scan_width) / 2);
+    shift  = SANE_UNFIX (s->hw->src->x_range.max) - scan_width;
+    shift /= sides;
 
     s->val[OPT_TL_X].w = SANE_FIX (shift + 0);
     s->val[OPT_BR_X].w = SANE_FIX (shift + scan_width);
@@ -5353,7 +5374,8 @@ adf_handle_manual_centering (Epson_Scanner *s, SANE_Bool finalize)
            && SANE_OPTION_IS_ACTIVE (s->opt[OPT_DETECT_DOC_SIZE].cap)
            && s->val[OPT_DETECT_DOC_SIZE].w)
   {
-    shift = ((SANE_UNFIX (s->hw->src->x_range.max) - s->hw->src->doc_x) / 2);
+    shift  = SANE_UNFIX (s->hw->src->x_range.max) - s->hw->src->doc_x;
+    shift /= sides;
 
     s->val[OPT_TL_X].w = SANE_FIX (shift + 0);
     s->val[OPT_BR_X].w = SANE_FIX (shift + s->hw->src->doc_x);
@@ -5362,13 +5384,17 @@ adf_handle_manual_centering (Epson_Scanner *s, SANE_Bool finalize)
   else if (!(adf_scan_area.width     == s->hw->src->x_range.max
              && adf_scan_area.height == s->hw->src->y_range.max))
   {
-    shift = SANE_UNFIX (s->hw->src->x_range.max - adf_scan_area.width) / 2;
+    shift  = SANE_UNFIX (s->hw->src->x_range.max - adf_scan_area.width);
+    shift /= sides;
 
     s->val[OPT_TL_X].w += SANE_FIX (shift);
     s->val[OPT_BR_X].w += SANE_FIX (shift);
   }
 
-  log_info ("shifting scan area offset by %.2f mm", shift);
+  log_info ("after alignment : tl-x = %.2f, br-x = %.2f",
+            SANE_UNFIX (s->val[OPT_TL_X].w),
+            SANE_UNFIX (s->val[OPT_BR_X].w));
+  log_info ("shifted scan area offset by %.2f mm", shift);
 }
 
 #define GET_COLOR(x)	(((x) >> 2) & 0x03)

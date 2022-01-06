@@ -1,13 +1,13 @@
 //  esmod.hh -- exposed API of the 'esmod' library
-//  Copyright (C) 2004, 2008  SEIKO EPSON CORPORATION
+//  Copyright (C) 2019 SEIKO EPSON Corporation
 //
 //  This file is part of the 'esmod' library.
 //
 //  The 'esmod' library is non-free software.
-//  It is distributed under the terms of the AVASYS PUBLIC LICENSE.
+//  It is distributed under the terms of the EPSON END USER SOFTWARE LICENSE.
 //
-//  You should have received a verbatim copy of the AVASYS PUBLIC
-//  LICENSE along with the software.
+//  You should have received a verbatim copy of the EPSON END USER
+//  SOFTWARE LICENSE along with the software.
 
 
 #ifndef esmod_hh_included
