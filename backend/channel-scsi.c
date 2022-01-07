@@ -154,8 +154,11 @@ channel_scsi_open (channel *self, SANE_Status *status)
 static void
 channel_scsi_close (channel *self, SANE_Status *status)
 {
-  sanei_scsi_close (self->fd);
-  self->fd = -1;
+  if (self->fd >= 0)
+    {
+      sanei_scsi_close (self->fd);
+      self->fd = -1;
+    }
 
   if (status) *status = SANE_STATUS_GOOD;
 }
