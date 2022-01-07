@@ -30,6 +30,7 @@ check_PROGRAMS = \
 
 test_pcx_LDADD = \
 	../libimage-stream.la \
+	-lpng \
 	-lstdc++
 test_pcx_SOURCES = \
 	test-pcx.cc \
