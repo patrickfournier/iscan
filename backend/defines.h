@@ -31,12 +31,19 @@ extern "C"
 
 
 #ifndef __cplusplus
+
+#if __has_include("stdbool.h")
+#include <stdbool.h>
+#endif
+
+#ifndef __bool_true_false_are_defined
 /*! A C++ Boolean type and corresponding keywords for our C code.
  */
 typedef enum {
   false = 0,
   true
 } bool;
+#endif
 #endif
 
 
