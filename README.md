@@ -1,5 +1,5 @@
-Image Scan! with 16 bits scanning capability for Ubuntu 20.04
-=============================================================
+Image Scan! with 16 bits scanning capability for Ubuntu 20.04 and 22.04
+=======================================================================
 
 The ImageScan! backend for Linux does not support 16 bits scanning.
 Henrik Andersson fixed that a while ago in his `iscan` fork:
