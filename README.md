@@ -18,7 +18,7 @@ I was able to fix a few of the issues. I used the debugger to fix
 the other ones I found.
 
 As the title says, these instructions are for Ubuntu, more precisely
-Ubuntu 20.04. They may work as is or with modifications in other
+Ubuntu 20.04 and 22.04. They may work as is or with modifications in other
 environments.
 
 Please also read the original [README](README) file from Epson.
