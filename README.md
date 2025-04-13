@@ -105,8 +105,10 @@ the compiled package:
 Finally, go back to the extracted directory (the one that contains the downloaded
 package) and run
 
-`sudo dpkg --install plugins/iscan-plugin-gt-x820_2.2.1-1_amd64.deb`
-`sudo cp 60-iscan.rules /lib/udev/rules.d/`
+```
+sudo dpkg --install plugins/iscan-plugin-gt-x820_2.2.1-1_amd64.deb
+sudo cp 60-iscan.rules /lib/udev/rules.d/
+```
 
 
 Extra notes
